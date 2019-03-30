@@ -2,7 +2,6 @@
 language: go
 env:
   global:
-  - AWS_DEFAULT_REGION=ap-southeast-2
     # include $HOME/.local/bin for `aws`
   - PATH=$HOME/.local/bin:$PATH
 

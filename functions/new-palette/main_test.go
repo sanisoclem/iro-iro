@@ -11,8 +11,8 @@ import (
 
 func TestHandler(t *testing.T) {
 	t.Run("Return id when created", func(t *testing.T) {
-		id, err := handler(events.APIGatewayProxyRequest{})
-		if err != nil || len(id) == 0 {
+		res, err := handler(events.APIGatewayProxyRequest{})
+		if err != nil || len(res.ID) == 0 {
 			t.Fatal("Failed to return HTTP 200")
 		}
 	})

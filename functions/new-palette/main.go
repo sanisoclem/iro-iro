@@ -11,16 +11,17 @@ import (
 )
 
 var (
-	// Cannot create a resource that already exists
+	// ErrAlreadyExists Cannot create a resource that already exists
 	ErrAlreadyExists = errors.New("Resource already exists")
 )
 
-type MyResponse struct {
-	Id string `json:"id:"`
+// NewPaletteResponse describes a succesful palette creation
+type NewPaletteResponse struct {
+	ID string `json:"id:"`
 }
 
-func handler(request events.APIGatewayProxyRequest) (MyResponse, error) {
-	return MyResponse{Id: "poop"}, nil
+func handler(request events.APIGatewayProxyRequest) (NewPaletteResponse, error) {
+	return NewPaletteResponse{ID: "poop"}, nil
 }
 
 func main() {

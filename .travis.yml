@@ -9,6 +9,7 @@ go:
   - tip
 
 install:
+  - pip install --upgrade pi
   - pip install awscli
   - pip install aws-sam-cli
   - go get golang.org/x/lint/golint

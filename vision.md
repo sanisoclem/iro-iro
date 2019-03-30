@@ -38,3 +38,4 @@
 - social media integration
 - auth
 - end to end testing of the whole stack
+- craw open source css for popular color themes

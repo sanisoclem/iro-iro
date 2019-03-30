@@ -1,5 +1,8 @@
 # Iro-iro Color Palettes
+
 [![CodeFactor](https://www.codefactor.io/repository/github/sanisoclem/iro-iro/badge)](https://www.codefactor.io/repository/github/sanisoclem/iro-iro)
+[![codebeat badge](https://codebeat.co/badges/f88692de-4a5d-40d9-90a8-61f679f12c99)](https://codebeat.co/projects/github-com-sanisoclem-iro-iro-master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ba9e0d3625be4c06b6d5ba10fa19891a)](https://www.codacy.com/app/me_162/iro-iro?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=sanisoclem/iro-iro&amp;utm_campaign=Badge_Grade)
 [![codecov](https://codecov.io/gh/sanisoclem/iro-iro/branch/master/graph/badge.svg)](https://codecov.io/gh/sanisoclem/iro-iro)
 
 A color palette sharing site.

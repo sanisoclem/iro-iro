@@ -27,6 +27,7 @@ notifications:
 before_script:
   - PKGS=$(go list ./...)
   - LINT_PKGS=$(go list ./... | grep -Ev 'aws-lambda-go/lambda')
+  - make deps
 
 script:
   - diff -u <(echo -n) <(gofmt -d ./)                              # Fail if a .go file hasn't been formatted with gofmt

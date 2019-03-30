@@ -3,15 +3,16 @@ language: go
 env:
   global:
   - AWS_DEFAULT_REGION=ap-southeast-2
+    # include $HOME/.local/bin for `aws`
+  - PATH=$HOME/.local/bin:$PATH
 
 go:
   - 1.12
   - tip
 
 install:
-  - pip install --upgrade pi
-  - pip install awscli
-  - pip install aws-sam-cli
+  - pip install --user awscli
+  - pip install --user aws-sam-cli
   - go get golang.org/x/lint/golint
   - go get github.com/haya14busa/goverage
 

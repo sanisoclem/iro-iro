@@ -5,6 +5,11 @@ env:
     # include $HOME/.local/bin for `aws`
   - PATH=$HOME/.local/bin:$PATH
 
+cache:
+  directories:
+    - $HOME/.cache/go-build
+    - $GOPATH/pkg/mod
+
 go:
   - 1.12
   - tip

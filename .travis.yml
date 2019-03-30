@@ -1,0 +1,37 @@
+
+language: go
+env:
+  global:
+  - AWS_DEFAULT_REGION=ap-southeast-2
+
+go:
+  - 1.12
+  - tip
+
+install:
+  - pip install awscli
+  - pip install aws-sam-cli
+  - go get golang.org/x/lint/golint
+  - go get github.com/haya14busa/goverage
+
+matrix:
+  allow_failures:
+    - go: tip
+  fast_finish: true
+
+notifications:
+  email: false
+
+before_script:
+  - PKGS=$(go list ./...)
+  - LINT_PKGS=$(go list ./... | grep -Ev 'aws-lambda-go/lambda')
+
+script:
+  - diff -u <(echo -n) <(gofmt -d ./)                              # Fail if a .go file hasn't been formatted with gofmt
+  - goverage -v -covermode=atomic -coverprofile=coverage.txt $PKGS # Run all tests with coverage
+  - go vet -v ./...                                                # static analysis
+  - golint $LINT_PKGS                                              # lint
+  - sam validate                                                   # validate SAM template
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

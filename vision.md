@@ -10,6 +10,9 @@
 - Cheap
 - simple and easy to use interface
 - mobile friendly
+- CI
+  - Testing / code coverage
+  - code analysis (go report)
 
 ## Constraints
 
@@ -34,3 +37,4 @@
 - Exporting to scss/css
 - social media integration
 - auth
+- end to end testing of the whole stack

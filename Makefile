@@ -7,8 +7,8 @@ GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
 GOGET=$(GOCMD) get
 
-FUNCTIONS = $(shell find functions/ -type f -name 'main.go')
-FUNCTION_BINARIES =  $(patsubst functions/%/main.go, bin/function-%,  $(FUNCTIONS))
+FUNCTIONS = $(shell find functions/ -type f -name '*.go')
+FUNCTION_BINARIES =  $(patsubst functions/%.go, bin/function_%,  $(FUNCTIONS))
 
 
 all: deps clean test build
@@ -18,7 +18,7 @@ build: $(FUNCTION_BINARIES)
 $(FUNCTION_BINARIES) : $(BIN)
 $(BIN):
 	mkdir $(BIN)
-bin/function-% : functions/%/main.go
+bin/function_% : functions/%.go
 	export GOOS=linux
 	export GOARCH=amd64
 	$(GOBUILD) -x -o $@ $<
@@ -35,3 +35,8 @@ clean:
 .PHONY:
 deps:
 	$(GOGET) -v -u github.com/aws/aws-lambda-go/...
+	$(GOGET) -v -u github.com/aws/aws-sdk-go/aws
+	$(GOGET) -v -u github.com/aws/aws-sdk-go/aws/session
+	$(GOGET) -v -u github.com/aws/aws-sdk-go/service/dynamodb/...
+	$(GOGET) -v -u github.com/rs/xid
+	$(GOGET) -v -u github.com/gusaul/go-dynamock

@@ -1,7 +1,7 @@
 
 # Go parameters
 BIN = ./bin
-GOCMD=go
+GOCMD=@go
 GOBUILD=$(GOCMD) build
 GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
@@ -19,7 +19,9 @@ $(FUNCTION_BINARIES) : $(BIN)
 $(BIN):
 	mkdir $(BIN)
 bin/function-% : functions/%/main.go
-	GOOS=linux GOARCH=amd64 $(GOBUILD) -o $@ $<
+	export GOOS=linux
+	export GOARCH=amd64
+	$(GOBUILD) -x -o $@ $<
 
 .PHONY:
 test:
@@ -28,8 +30,8 @@ test:
 .PHONY:
 clean:
 	$(GOCLEAN)
+	@rm -rf ./bin
 
 .PHONY:
 deps:
-	$(GOGET) -u github.com/aws/aws-lambda-go/...
-
+	$(GOGET) -v -u github.com/aws/aws-lambda-go/...

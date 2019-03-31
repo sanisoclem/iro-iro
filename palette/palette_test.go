@@ -11,9 +11,9 @@ import (
 	dynamock "github.com/gusaul/go-dynamock"
 )
 
-func getDbMock() (*PaletteDynamoDb, *dynamock.DynaMock) {
+func getDbMock() (*DynamoDb, *dynamock.DynaMock) {
 	inner, mock := dynamock.New()
-	svc := PaletteDynamoDb{inner}
+	svc := DynamoDb{inner}
 	return &svc, mock
 }
 

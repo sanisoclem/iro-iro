@@ -40,19 +40,21 @@ type NewPalette struct {
 	Colors []Color
 }
 
-type PaletteDynamoDb struct {
+// DynamoDb is used to manipuate palettes in dynamo db
+type DynamoDb struct {
 	db dynamodbiface.DynamoDBAPI
 }
 
-func CreateDB() *PaletteDynamoDb {
+// CreateDB creates a dynabo db adapter
+func CreateDB() *DynamoDb {
 	// Build the Dynamo client object
 	sess := session.Must(session.NewSession())
-	svc := PaletteDynamoDb{dynamodb.New(sess)}
+	svc := DynamoDb{dynamodb.New(sess)}
 	return &svc
 }
 
 // Create a color palette in the db
-func (c *PaletteDynamoDb) Create(palette NewPalette) (*string, error) {
+func (c *DynamoDb) Create(palette NewPalette) (*string, error) {
 	// create a valid palette
 	item := buildPalette(&palette)
 
@@ -81,7 +83,7 @@ func (c *PaletteDynamoDb) Create(palette NewPalette) (*string, error) {
 }
 
 // GetByID wraps up the DynamoDB calls to fetch a palette by Id
-func (c *PaletteDynamoDb) GetByID(id string) (*Palette, error) {
+func (c *DynamoDb) GetByID(id string) (*Palette, error) {
 	item := Palette{}
 
 	// Perform the query
@@ -100,7 +102,7 @@ func (c *PaletteDynamoDb) GetByID(id string) (*Palette, error) {
 	}
 
 	// Unmarshall the result in to an Item
-	err = dynamodbattribute.UnmarshalMap(result.Item, item)
+	err = dynamodbattribute.UnmarshalMap(result.Item, &item)
 	if err != nil {
 		fmt.Println(err.Error())
 		return nil, err

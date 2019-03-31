@@ -23,17 +23,20 @@ Globals:
       project: !Ref ProjectName
 
   Api:
-    #Cors: !Ref CorsOrigin #TODO: figure out how to add CORS!
+    #Cors:
+      #AllowOrigin: !Ref CorsOrigin #TODO: figure out how to add CORS!
+      #AllowHeaders: "'Accept,Origin,Content-Type,X-Amz-Date,X-Requested-With,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'"
+      #AllowMethods: "'POST,GET,OPTIONS'"
     EndpointConfiguration: REGIONAL
     MinimumCompressionSize: 1024
-  #   MethodSettings: [{
-  #       # Turn on Info logging
-  #       "LoggingLevel": "INFO",
-  #       "MetricsEnabled": True,
-  #       "DataTraceEnabled": True,
-  #       "ResourcePath": "/*",
-  #       "HttpMethod": "*",
-  #   }]
+    MethodSettings: [{
+        # Turn on Info logging
+        "LoggingLevel": "INFO",
+        "MetricsEnabled": True,
+        "DataTraceEnabled": True,
+        "ResourcePath": "/*",
+        "HttpMethod": "*",
+    }]
 
 Resources:
   WorkerFunction:
@@ -117,8 +120,8 @@ Resources:
               x-amazon-apigateway-integration:
                 uri:
                   Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PaletteFunction.Arn}/invocations
-                httpMethod: "GET"
-                type: "aws"
+                httpMethod: "POST" # this must be post according to docs: https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-integration.html
+                type: "aws_proxy"
                 responses:
                   default:
                     statusCode: 200
@@ -153,7 +156,7 @@ Resources:
                 uri:
                   Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PaletteFunction.Arn}/invocations
                 httpMethod: "POST"
-                type: "aws"
+                type: "aws_proxy"
                 responses:
                   default:
                     statusCode: 200
@@ -231,7 +234,7 @@ Resources:
     Type: AWS::Serverless::SimpleTable
     Properties:
       PrimaryKey:
-        Name: id
+        Name: ID
         Type: String
       Tags:
         project: !Ref ProjectName

@@ -25,12 +25,12 @@ type Color struct {
 
 // Palette represents color palette
 type Palette struct {
-	ID      string
-	Name    string
-	Labels  []string
-	Created time.Time
-	Accessed  time.Time
-	Colors  []Color
+	ID       string
+	Name     string
+	Labels   []string
+	Created  time.Time
+	Accessed time.Time
+	Colors   []Color
 }
 
 // NewPalette represents information required to create a new palette
@@ -90,7 +90,7 @@ func (c *PaletteDynamoDb) GetByID(id string) (*Palette, error) {
 		TableName: aws.String(tableName),
 		Key: map[string]*dynamodb.AttributeValue{
 			"ID": {
-				N: aws.String(id),
+				S: aws.String(id),
 			},
 		},
 	})
@@ -114,12 +114,12 @@ func buildPalette(palette *NewPalette) *Palette {
 
 	// generate an id
 	item := Palette{
-		ID:      xid.New().String(),
-		Created: timestamp,
-		Accessed:  timestamp,
-		Labels:  palette.Labels,
-		Name:    palette.Name,
-		Colors:  palette.Colors,
+		ID:       xid.New().String(),
+		Created:  timestamp,
+		Accessed: timestamp,
+		Labels:   palette.Labels,
+		Name:     palette.Name,
+		Colors:   palette.Colors,
 	}
 
 	return &item

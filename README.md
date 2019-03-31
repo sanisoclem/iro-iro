@@ -68,7 +68,25 @@ ok      _/mnt/d/Mel/Workspace/src/github.com/sanisoclem/iro-iro/functions/new-pa
 
 ## Deployment
 
-TBD
+This repo uses AWS SAM templates for deployment.
+
+```bash
+$ # publish code in s3 and package template
+$ sam package --s3-bucket $S3_BUCKET_NAME --output-template-file packaged.yml
+Uploading to 0e989e5a7ec764a7d03dc4afc96d3246  11738791 / 11738791.0  (100.00%)
+Successfully packaged artifacts and wrote output template to file packaged.yml.
+Execute the following command to deploy the packaged template
+aws cloudformation deploy --template-file D:\Mel\Workspace\src\github.com\sanisoclem\iro-iro\packaged.yml --stack-name $STACK_NAME
+
+$ # deploy using cloud formation. This will create the stack if it doesnt exist
+$ aws cloudformation deploy --template-file packaged.yml --stack-name IroIroExperimental8 \
+> --parameter-overrides ProjectName=IroIronExperimental CorsOrigin=https://beta.colors.sanisoclem.dev \
+> --capabilities CAPABILITY_IAM --tags project=iro-iro8
+
+Waiting for changeset to be created..
+Waiting for stack create/update to complete
+Successfully created/updated stack - IroIroExperimental8
+```
 
 [getgo]:https://golang.org/doc/install
 [saminstall]:https://aws.amazon.com/serverless/sam/

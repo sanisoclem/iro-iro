@@ -14,33 +14,53 @@ Parameters:
 Globals:
   Function:
     Timeout: 5
+    Runtime: go1.x
+    AutoPublishAlias: live
+    Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+      Variables:
+        TABLE_NAME: !Ref PaletteTable
+    Tags:
+      project: !Ref ProjectName
 
   Api:
-    Cors: !Ref CorsOrigin
+    #Cors: !Ref CorsOrigin #TODO: figure out how to add CORS!
     EndpointConfiguration: REGIONAL
     MinimumCompressionSize: 1024
-    MethodSettings: [{
-        # Turn on Info logging
-        "LoggingLevel": "INFO",
-        "MetricsEnabled": True,
-        "DataTraceEnabled": True,
-        "ResourcePath": "/*",
-        "HttpMethod": "*",
-    }]
+  #   MethodSettings: [{
+  #       # Turn on Info logging
+  #       "LoggingLevel": "INFO",
+  #       "MetricsEnabled": True,
+  #       "DataTraceEnabled": True,
+  #       "ResourcePath": "/*",
+  #       "HttpMethod": "*",
+  #   }]
 
 Resources:
+  WorkerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./bin
+      Handler: function_worker
+      Policies: AmazonDynamoDBFullAccess
+      Events:
+        Timer:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 4 * * ? *) # will run once a day at midnight
+      # TODO: create an endpoint for this so it can be triggered manually
+
   PaletteFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: bin/
+      CodeUri: ./bin
       Handler: function_palette
-      Runtime: go1.x
-      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
-        Variables:
-          TABLE_NAME: !GetAtt PaletteTable.TableName
-      Tags:
-        project: !Ref ProjectName
-      AutoPublishAlias: live
+      Policies:
+        - 'AmazonDynamoDBFullAccess'
+        # - DynamoDBCrudPolicy:
+        #   - TableName:
+        #     - !Ref PaletteTable
+        - CloudWatchPutMetricPolicy: {}
+
       #DeploymentPreference:
         #Type: Canary10Percent5Minutes
         #Hooks:
@@ -49,21 +69,166 @@ Resources:
         Post:
           Type: Api
           Properties:
+            RestApiId: !Ref PaletteApi
             Path: /palette
             Method: POST
         GetById:
           Type: Api
           Properties:
+            RestApiId: !Ref PaletteApi
             Path: /palette
             Method: GET
 
   PaletteApi:
     Type: AWS::Serverless::Api
-    Stage: prod
     Properties:
-        DefinitionUri: ./lambda/swagger.yaml
+      StageName: prod
+      DefinitionBody:
+        swagger: '2.0'
+        info:
+          description: This is an API for managing color palettes
+          title: Palette API
+        paths:
+          /palette/{id}:
+            get:
+              summary: Gets a palette by Id
+              operationId: get_by_id
+              description: You can get palette info by passing in the ID
+              produces:
+              - application/json
+              parameters:
+              - in: path
+                name: id
+                description: pass an optional search string for looking up inventory
+                required: true
+                type: string
+              responses:
+                '200':
+                  description: Pallet info
+                  schema:
+                    $ref: '#/definitions/Palette'
+                '400':
+                  description: bad input parameter
+                '404':
+                  description: Palette was not found
+              x-amazon-apigateway-request-validators:
+                basic:
+                  validateRequestParameters: true
+              x-amazon-apigateway-integration:
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PaletteFunction.Arn}/invocations
+                httpMethod: "GET"
+                type: "aws"
+                responses:
+                  default:
+                    statusCode: 200
+          /palette:
+            post:
+              summary: Creates a palette
+              operationId: GetById
+              description: Creates a palette
+              consumes:
+              - application/json
+              produces:
+              - application/json
+              parameters:
+              - in: body
+                name: NewPalette
+                description: Palette to create
+                schema:
+                  $ref: '#/definitions/NewPalette'
+              responses:
+                '200':
+                  description: test
+                  schema:
+                    $ref: '#/definitions/NewPaletteResponse'
+                '400':
+                  description: invalid input, object invalid
+                '409':
+                  description: an existing item already exists
+              x-amazon-apigateway-request-validators:
+                basic:
+                  validateRequestBody: true
+              x-amazon-apigateway-integration:
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PaletteFunction.Arn}/invocations
+                httpMethod: "POST"
+                type: "aws"
+                responses:
+                  default:
+                    statusCode: 200
+
+        definitions:
+          Color:
+            type: object
+            required:
+            - Name
+            - HexValue
+            properties:
+              Name:
+                type: string
+                #example: Ultima
+              HexValue:
+                type: string
+                format: color
+                #example: "#fff"
+          NewPalette:
+            type: object
+            required:
+            - Name
+            - Colors
+            properties:
+              Name:
+                type: string
+                #example: Poopalette
+              Labels:
+                type: array
+                items:
+                  type: string
+              Colors:
+                type: array
+                items:
+                  $ref: '#/definitions/Color'
+          Palette:
+            type: object
+            required:
+            - ID
+            - Name
+            - Colors
+            properties:
+              ID:
+                type: string
+                #example: "9m4e2mr0ui3e8a215n4g"
+              Name:
+                type: string
+                #example: Poopalette
+              Labels:
+                type: array
+                items:
+                  type: string
+              Colors:
+                type: array
+                items:
+                  $ref: '#/definitions/Color'
+              Accessed:
+                type: string
+                format: date-time
+                #example: "2019-03-31T11:11:11.1111Z"
+              Created:
+                type: string
+                format: date-time
+                #example: "2019-03-31T11:11:11.1111Z"
+          NewPaletteResponse:
+            type: object
+            required:
+            - ID
+            properties:
+              ID:
+                type: string
+                #example: "9m4e2mr0ui3e8a215n4g"
 
   PaletteTable:
+    Type: AWS::Serverless::SimpleTable
     Properties:
       PrimaryKey:
         Name: id
@@ -81,10 +246,13 @@ Resources:
 Outputs:
   PaletteApi:
     Description: "API Gateway"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/prod/palette/"
+    Value: !Sub "https://${PaletteApi}.execute-api.${AWS::Region}.amazonaws.com/prod/palette/"
   PaletteFunction:
-    Description: "Lambda for REST API"
-    Value: !GetAtt NewPaletteFunction.Arn
+    Description: "Palette Function"
+    Value: !GetAtt PaletteFunction.Arn
+  WorkerFunction:
+    Description: "Worker Function"
+    Value: !GetAtt WorkerFunction.Arn
   PaletteTable:
     Description: "DynamoDB Table"
     Value: !GetAtt PaletteTable.Arn

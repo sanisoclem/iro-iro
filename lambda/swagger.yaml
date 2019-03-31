@@ -22,6 +22,13 @@ paths:
         description: pass an optional search string for looking up inventory
         required: true
         type: string
+      x-amazon-apigateway-request-validators:
+        basic:
+          validateRequestParameters: true
+      x-amazon-apigateway-integration:
+        type: "aws"
+        httpMethod: "GET"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:AWS_REGION:ACCOUNT_ID:function:PostPetFunction/invocations"
       responses:
         200:
           description: Pallet info
@@ -34,7 +41,7 @@ paths:
   /palette:
     post:
       summary: Creates a palette
-      operationId: post
+      operationId: GetById
       description: Creates a palette
       consumes:
       - application/json
@@ -64,11 +71,11 @@ definitions:
     properties:
       Name:
         type: string
-        example: Ultima
+        #example: Ultima
       HexValue:
         type: string
         format: color
-        example: "#fff"
+        #example: "#fff"
   NewPalette:
     type: object
     required:
@@ -77,7 +84,7 @@ definitions:
     properties:
       Name:
         type: string
-        example: Poopalette
+        #example: Poopalette
       Labels:
         type: array
         items:
@@ -95,10 +102,10 @@ definitions:
     properties:
       ID:
         type: string
-        example: "9m4e2mr0ui3e8a215n4g"
+        #example: "9m4e2mr0ui3e8a215n4g"
       Name:
         type: string
-        example: Poopalette
+        #example: Poopalette
       Labels:
         type: array
         items:
@@ -110,11 +117,11 @@ definitions:
       Accessed:
         type: string
         format: date-time
-        example: "2019-03-31T11:11:11.1111Z"
+        #example: "2019-03-31T11:11:11.1111Z"
       Created:
         type: string
         format: date-time
-        example: "2019-03-31T11:11:11.1111Z"
+        #example: "2019-03-31T11:11:11.1111Z"
   NewPaletteResponse:
     type: object
     required:
@@ -122,4 +129,4 @@ definitions:
     properties:
       ID:
         type: string
-        example: "9m4e2mr0ui3e8a215n4g"
+        #example: "9m4e2mr0ui3e8a215n4g"

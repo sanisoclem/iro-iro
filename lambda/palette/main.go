@@ -37,7 +37,7 @@ func post(request events.APIGatewayProxyRequest) (*NewPaletteResponse, error) {
 func get_by_id(request events.APIGatewayProxyRequest) (*palette.Palette, error) {
 	db := palette.CreateDB()
 
-	res, err := db.GetByID(request.Body)
+	res, err := db.GetByID(request.PathParameters["id"])
 
 	if err != nil {
 		return nil, err

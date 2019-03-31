@@ -71,11 +71,11 @@ func TestGetByID(t *testing.T) {
 
 func TestBuildPalette(t *testing.T) {
 
-	t.Run("Create and access are same", func(t *testing.T) {
+	t.Run("Created and accessed are same", func(t *testing.T) {
 		res := buildPalette(&NewPalette{})
 
-		if res.Access != res.Created {
-			t.Fatal("Created and access are not equal")
+		if res.Accessed != res.Created {
+			t.Fatal("Created and accessed are not equal")
 		}
 	})
 

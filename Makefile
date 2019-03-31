@@ -7,9 +7,8 @@ GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
 GOGET=$(GOCMD) get
 
-FUNCTIONS = $(shell find functions/ -type f -name '*.go')
-FUNCTION_BINARIES =  $(patsubst functions/%.go, bin/function_%,  $(FUNCTIONS))
-
+FUNCTIONS = $(shell find lambda/ -type f -name 'main.go')
+FUNCTION_BINARIES =  $(patsubst functions/%/main.go, bin/function_%,  $(FUNCTIONS))
 
 all: deps clean test build
 

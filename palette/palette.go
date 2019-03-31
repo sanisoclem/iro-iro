@@ -29,7 +29,7 @@ type Palette struct {
 	Name    string
 	Labels  []string
 	Created time.Time
-	Access  time.Time
+	Accessed  time.Time
 	Colors  []Color
 }
 
@@ -116,7 +116,7 @@ func buildPalette(palette *NewPalette) *Palette {
 	item := Palette{
 		ID:      xid.New().String(),
 		Created: timestamp,
-		Access:  timestamp,
+		Accessed:  timestamp,
 		Labels:  palette.Labels,
 		Name:    palette.Name,
 		Colors:  palette.Colors,

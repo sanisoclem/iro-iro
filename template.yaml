@@ -5,38 +5,86 @@ Description: >
 
   Simple color palette sharing
 
+Parameters:
+  ProjectName:
+    Type: String
+  CorsOrigin:
+    Type: String
+
 Globals:
   Function:
     Timeout: 5
 
+  Api:
+    Cors: !Ref CorsOrigin
+    EndpointConfiguration: REGIONAL
+    MinimumCompressionSize: 1024
+    MethodSettings: [{
+        # Turn on Info logging
+        "LoggingLevel": "INFO",
+        "MetricsEnabled": True,
+        "DataTraceEnabled": True,
+        "ResourcePath": "/*",
+        "HttpMethod": "*",
+    }]
+
 Resources:
-  NewPaletteFunction:
+  PaletteFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: bin/
-      Handler: function-new-palette
+      Handler: function_palette
       Runtime: go1.x
-      #Tracing: Active # https://docs.aws.amazon.com/lambda/latest/dg/lambda-x-ray.html
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          TABLE_NAME: !GetAtt PaletteTable.TableName
+      Tags:
+        project: !Ref ProjectName
+      AutoPublishAlias: live
+      #DeploymentPreference:
+        #Type: Canary10Percent5Minutes
+        #Hooks:
+          #PreTraffic: !Ref preTrafficHook # remove this until we can figure out what to do in the preTrafficHook
       Events:
-        CatchAll:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+        Post:
+          Type: Api
+          Properties:
+            Path: /palette
+            Method: POST
+        GetById:
+          Type: Api
           Properties:
             Path: /palette
             Method: GET
-      # Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
-      #   Variables:
-      #     PARAM1: VALUE
+
+  PaletteApi:
+    Type: AWS::Serverless::Api
+    Stage: prod
+    Properties:
+        DefinitionUri: ./lambda/swagger.yaml
+
+  PaletteTable:
+    Properties:
+      PrimaryKey:
+        Name: id
+        Type: String
+      Tags:
+        project: !Ref ProjectName
+      SSESpecification:
+        SSEEnabled: false
+
+
+# TODO:
+#   - Add a CloudFront distribution, lambda cold start time is so high so it's not really ideal for serving html
+#   - Add an s3 bucket to host our code (both lambda and website)
 
 Outputs:
-  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
-  # Find out more about other implicit resources you can reference within SAM
-  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  IroAPI:
-    Description: "API Gateway endpoint URL for Prod environment for First Function"
+  PaletteApi:
+    Description: "API Gateway"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/prod/palette/"
-  NewPaleteeFunction:
-    Description: "Create a new palette"
+  PaletteFunction:
+    Description: "Lambda for REST API"
     Value: !GetAtt NewPaletteFunction.Arn
-  NewPaleteeFunctionIamRole:
-    Description: "Implicit IAM Role created for Hello World function"
-    Value: !GetAtt NewPaletteFunctionRole.Arn
+  PaletteTable:
+    Description: "DynamoDB Table"
+    Value: !GetAtt PaletteTable.Arn

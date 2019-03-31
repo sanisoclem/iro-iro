@@ -1,0 +1,125 @@
+swagger: '2.0'
+info:
+  description: This is an API for managing color palettes
+  version: 1.0.0
+  title: Palette API
+  contact:
+    email: contact@jerahmeelcosinas.net
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+paths:
+  /palette/{id}:
+    get:
+      summary: Gets a palette by Id
+      operationId: get_by_id
+      description: You can get palette info by passing in the ID
+      produces:
+      - application/json
+      parameters:
+      - in: path
+        name: id
+        description: pass an optional search string for looking up inventory
+        required: true
+        type: string
+      responses:
+        200:
+          description: Pallet info
+          schema:
+            $ref: '#/definitions/Palette'
+        400:
+          description: bad input parameter
+        404:
+          description: Palette was not found
+  /palette:
+    post:
+      summary: Creates a palette
+      operationId: post
+      description: Creates a palette
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: NewPalette
+        description: Palette to create
+        schema:
+          $ref: '#/definitions/NewPalette'
+      responses:
+        200:
+          description: test
+          schema:
+            $ref: '#/definitions/NewPaletteResponse'
+        400:
+          description: invalid input, object invalid
+        409:
+          description: an existing item already exists
+definitions:
+  Color:
+    type: object
+    required:
+    - Name
+    - HexValue
+    properties:
+      Name:
+        type: string
+        example: Ultima
+      HexValue:
+        type: string
+        format: color
+        example: "#fff"
+  NewPalette:
+    type: object
+    required:
+    - Name
+    - Colors
+    properties:
+      Name:
+        type: string
+        example: Poopalette
+      Labels:
+        type: array
+        items:
+          type: string
+      Colors:
+        type: array
+        items:
+          $ref: '#/definitions/Color'
+  Palette:
+    type: object
+    required:
+    - ID
+    - Name
+    - Colors
+    properties:
+      ID:
+        type: string
+        example: "9m4e2mr0ui3e8a215n4g"
+      Name:
+        type: string
+        example: Poopalette
+      Labels:
+        type: array
+        items:
+          type: string
+      Colors:
+        type: array
+        items:
+          $ref: '#/definitions/Color'
+      Accessed:
+        type: string
+        format: date-time
+        example: "2019-03-31T11:11:11.1111Z"
+      Created:
+        type: string
+        format: date-time
+        example: "2019-03-31T11:11:11.1111Z"
+  NewPaletteResponse:
+    type: object
+    required:
+    - ID
+    properties:
+      ID:
+        type: string
+        example: "9m4e2mr0ui3e8a215n4g"

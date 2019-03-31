@@ -8,7 +8,7 @@ GOTEST=$(GOCMD) test
 GOGET=$(GOCMD) get
 
 FUNCTIONS = $(shell find lambda/ -type f -name 'main.go')
-FUNCTION_BINARIES =  $(patsubst functions/%/main.go, bin/function_%,  $(FUNCTIONS))
+FUNCTION_BINARIES =  $(patsubst lambda/%/main.go, bin/function_%,  $(FUNCTIONS))
 
 all: deps clean test build
 
@@ -17,7 +17,7 @@ build: $(FUNCTION_BINARIES)
 $(FUNCTION_BINARIES) : $(BIN)
 $(BIN):
 	mkdir $(BIN)
-bin/function_% : functions/%.go
+bin/function_% : lambda/%/main.go
 	export GOOS=linux
 	export GOARCH=amd64
 	$(GOBUILD) -x -o $@ $<

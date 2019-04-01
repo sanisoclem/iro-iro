@@ -19,8 +19,8 @@ A color palette sharing site.
 ## Prerequesites
 
 - git
-- [go](getgo)
-- [sam cli](saminstall)
+- [go][getgo]
+- [sam cli][saminstall]
 - make (optional)
 
 ## Getting Started
